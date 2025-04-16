@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>I12 - Revolutionizing AR Interaction</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            overflow-x: hidden;
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .hero-section {
+            background: radial-gradient(circle at 30% 50%, rgba(59, 130, 246, 0.1) 0%, rgba(15, 23, 42, 1) 70%);
+        }
+        
+        .floating {
+            animation: floating 6s ease-in-out infinite;
+        }
+        
+        @keyframes floating {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .hand-wave {
+            animation: wave 2s ease-in-out infinite;
+            transform-origin: 70% 70%;
+        }
+        
+        @keyframes wave {
+            0% { transform: rotate(0deg); }
+            10% { transform: rotate(14deg); }
+            20% { transform: rotate(-8deg); }
+            30% { transform: rotate(14deg); }
+            40% { transform: rotate(-4deg); }
+            50% { transform: rotate(10deg); }
+            60% { transform: rotate(0deg); }
+            100% { transform: rotate(0deg); }
+        }
+        
+        .eye-blink {
+            animation: blink 4s ease-in-out infinite;
+        }
+        
+        @keyframes blink {
+            0% { transform: scaleY(1); }
+            1% { transform: scaleY(0.1); }
+            2% { transform: scaleY(1); }
+            8% { transform: scaleY(1); }
+            100% { transform: scaleY(1); }
+        }
+        
+        .cursor-trail {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: rgba(59, 130, 246, 0.5);
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+            mix-blend-mode: screen;
+        }
+        
+        .chatbot-container {
+            transition: all 0.3s ease;
+            transform: translateY(20px);
+            opacity: 0;
+        }
+        
+        .chatbot-container.active {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .message {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease, opacity 0.3s ease;
+            opacity: 0;
+        }
+        
+        .message.visible {
+            max-height: 200px;
+            opacity: 1;
+        }
+        
+        #threejs-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        .tech-card {
+            transition: all 0.3s ease;
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .tech-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 25px -5px rgba(59, 130, 246, 0.2), 0 10px 10px -5px rgba(59, 130, 246, 0.1);
+        }
+        
+        .gesture-path {
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            animation: dash 5s linear forwards infinite;
+        }
+        
+        @keyframes dash {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        .shape-animation {
+            animation: shapeIntro 2s ease-out forwards;
+        }
+
+        @keyframes shapeIntro {
+            0% {
+                transform: scale(0) rotate(0deg);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1) rotate(360deg);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Three.js Background -->
+    <div id="threejs-container"></div>
+    
+    <!-- Cursor Trail Effect -->
+    <div class="cursor-trail" id="cursor-trail"></div>
+    
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 bg-opacity-80 backdrop-filter backdrop-blur-lg bg-gray-900 border-b border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <span class="text-2xl font-bold gradient-text">I12</span>
+                    </div>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-center space-x-4">
+                        <a href="#home" class="px-3 py-2 rounded-md text-sm font-medium text-white hover:text-blue-400 transition">Home</a>
+                        <a href="#technology" class="px-3 py-2 rounded-md text-sm font-medium text-white hover:text-purple-400 transition">Technology</a>
+                        <a href="#features" class="px-3 py-2 rounded-md text-sm font-medium text-white hover:text-pink-400 transition">Features</a>
+                        <a href="#about" class="px-3 py-2 rounded-md text-sm font-medium text-white hover:text-indigo-400 transition">About</a>
+                        <a href="#contact" class="px-3 py-2 rounded-md text-sm font-medium text-white hover:text-green-400 transition">Contact</a>
+                    </div>
+                </div>
+                <div class="md:hidden">
+                    <button class="text-white focus:outline-none">
+                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Hero Section -->
+    <section id="home" class="hero-section min-h-screen flex items-center justify-center relative overflow-hidden pt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 flex flex-col md:flex-row items-center">
+            <div class="md:w-1/2 mb-10 md:mb-0">
+                <h1 class="text-4xl md:text-6xl font-bold mb-6">
+                    <span class="gradient-text">Revolutionizing</span> Interaction
+                </h1>
+                <p class="text-xl md:text-2xl text-gray-300 mb-8">
+                    <span id="typed-text"></span>
+                </p>
+                <div class="flex space-x-4">
+                    <button class="px-8 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full text-white font-semibold hover:opacity-90 transition transform hover:scale-105">
+                        Get Started
+                    </button>
+                    <button class="px-8 py-3 border border-gray-600 rounded-full text-white font-semibold hover:bg-gray-800 transition transform hover:scale-105">
+                        Learn More
+                    </button>
+                </div>
+            </div>
+            <div class="md:w-1/2 relative flex justify-center">
+                <div class="relative w-64 h-64 md:w-80 md:h-80">
+                    <!-- 3D Hand Animation -->
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <div class="relative">
+                            <div class="w-64 h-64 md:w-80 md:h-80 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-500/20 blur-3xl"></div>
+                            <div class="absolute top-0 left-0 w-full h-full flex items-center justify-center">
+                                <div id="hand-model" class="w-full h-full"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Eye Tracking Animation -->
+                    <div class="absolute -right-10 -bottom-10">
+                        <div class="relative">
+                            <div class="w-32 h-32 rounded-full bg-gradient-to-br from-pink-500/20 to-rose-500/20 blur-2xl"></div>
+                            <div class="absolute top-0 left-0 w-full h-full flex items-center justify-center">
+                                <div class="relative">
+                                    <div class="w-24 h-16 bg-white rounded-full flex justify-center items-center eye-blink">
+                                        <div class="w-8 h-8 bg-blue-900 rounded-full"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Floating Tech Elements -->
+        <div class="absolute top-1/4 left-1/4 w-8 h-8 rounded-full bg-blue-500 opacity-30 floating" style="animation-delay: 0s;"></div>
+        <div class="absolute top-1/3 right-1/4 w-12 h-12 rounded-full bg-purple-500 opacity-30 floating" style="animation-delay: 1s;"></div>
+        <div class="absolute bottom-1/4 left-1/3 w-10 h-10 rounded-full bg-pink-500 opacity-30 floating" style="animation-delay: 2s;"></div>
+    </section>
+    
+    <!-- Technology Section -->
+    <section id="technology" class="py-20 relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-5xl font-bold mb-4">
+                    Our <span class="gradient-text">Cutting-Edge</span> Technology
+                </h2>
+                <p class="text-xl text-gray-300 max-w-3xl mx-auto">
+                    Combining advanced computer vision, machine learning, and augmented reality to create intuitive interfaces
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Hand Gesture Card -->
+                <div class="tech-card p-8 rounded-2xl transition-all duration-300 hover:shadow-xl">
+                    <div class="flex justify-center mb-6">
+                        <div class="w-20 h-20 bg-blue-900/30 rounded-full flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11" />
+                            </svg>
+                        </div>
+                    </div>
+                    <h3 class="text-xl font-bold text-center mb-4">Precision Hand Tracking</h3>
+                    <p class="text-gray-300 text-center">
+                        Our advanced algorithms detect 21 hand landmarks with sub-millimeter accuracy, enabling natural interaction.
+                    </p>
+                    <div class="mt-6 flex justify-center">
+                        <svg width="200" height="100" viewBox="0 0 200 100" class="w-full">
+                            <path d="M20,50 Q50,20 80,50 T140,50" stroke="#3b82f6" stroke-width="3" fill="none" class="gesture-path"/>
+                        </svg>
+                    </div>
+                </div>
+                
+                <!-- Eye Tracking Card -->
+                <div class="tech-card p-8 rounded-2xl transition-all duration-300 hover:shadow-xl">
+                    <div class="flex justify-center mb-6">
+                        <div class="w-20 h-20 bg-purple-900/30 rounded-full flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                        </div>
+                    </div>
+                    <h3 class="text-xl font-bold text-center mb-4">Advanced Eye Tracking</h3>
+                    <p class="text-gray-300 text-center">
+                        Real-time pupil detection with 120Hz refresh rate for seamless gaze-based navigation.
+                    </p>
+                    <div class="mt-6 flex justify-center">
+                        <div class="relative w-24 h-16">
+                            <div class="absolute inset-0 bg-white rounded-full"></div>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <div class="w-8 h-8 bg-blue-900 rounded-full animate-pulse"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- AI Integration Card -->
+                <div class="tech-card p-8 rounded-2xl transition-all duration-300 hover:shadow-xl">
+                    <div class="flex justify-center mb-6">
+                        <div class="w-20 h-20 bg-pink-900/30 rounded-full flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-pink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                            </svg>
+                        </div>
+                    </div>
+                    <h3 class="text-xl font-bold text-center mb-4">Adaptive AI Assistant</h3>
+                    <p class="text-gray-300 text-center">
+                        Our intelligent chatbot learns user patterns to provide personalized assistance and shortcuts.
+                    </p>
+                    <div class="mt-6 flex justify-center">
+                        <div class="relative w-16 h-16">
+                            <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full animate-pulse opacity-70"></div>
+                            <div class="absolute inset-0 flex items-center justify-center text-white">
+                                <i class="fas fa-robot text-2xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Features Section -->
+    <section id="features" class="py-20 bg-gradient-to-b from-gray-900 to-gray-800 relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-5xl font-bold mb-4">
+                    <span class="gradient-text">Innovative</span> Features
+                </h2>
+                <p class="text-xl text-gray-300 max-w-3xl mx-auto">
+                    Designed specifically for special needs users with accessibility at its core
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div class="relative">
+                    <!-- 3D Interaction Visualization -->
+                    <div class="relative w-full h-96 bg-gray-800/50 rounded-2xl border border-gray-700 overflow-hidden">
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="relative w-64 h-64">
+                                <!-- Screen -->
+                                <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-48 h-32 bg-gray-700 rounded-lg border border-gray-600">
+                                    <div class="absolute inset-0.5 bg-gray-900 rounded-sm flex items-center justify-center">
+                                        <div class="text-xs text-gray-500">AR Interface</div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Hand -->
+                                <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-24 h-24">
+                                    <svg viewBox="0 0 100 100" class="w-full h-full">
+                                        <path d="M50,20 L60,30 L70,20 L80,30 L90,20" stroke="#3b82f6" stroke-width="3" fill="none" class="gesture-path" style="animation-duration: 3s;"/>
+                                        <circle cx="50" cy="20" r="5" fill="#3b82f6" class="animate-pulse"/>
+                                    </svg>
+                                </div>
+                                
+                                <!-- Eye -->
+                                <div class="absolute top-1/3 right-1/4 w-8 h-8">
+                                    <div class="relative w-full h-full">
+                                        <div class="absolute inset-0 bg-white rounded-full"></div>
+                                        <div class="absolute inset-0 flex items-center justify-center">
+                                            <div class="w-4 h-4 bg-blue-900 rounded-full animate-pulse"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Connection lines -->
+                                <svg viewBox="0 0 100 100" class="absolute inset-0 w-full h-full">
+                                    <path d="M50,50 L80,30" stroke="#8b5cf6" stroke-width="2" stroke-dasharray="5,5" fill="none"/>
+                                    <path d="M50,50 L60,30" stroke="#ec4899" stroke-width="2" stroke-dasharray="5,5" fill="none"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <div class="space-y-8">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 mt-1">
+                                <div class="w-10 h-10 rounded-full bg-blue-900/30 flex items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-lg font-semibold">Multi-Modal Control</h3>
+                                <p class="mt-1 text-gray-300">
+                                    Combine hand gestures, eye tracking, and voice commands for complete control flexibility.
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 mt-1">
+                                <div class="w-10 h-10 rounded-full bg-purple-900/30 flex items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-400" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-lg font-semibold">Adaptive Sensitivity</h3>
+                                <p class="mt-1 text-gray-300">
+                                    Automatically adjusts to individual motor capabilities and response times.
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 mt-1">
+                                <div class="w-10 h-10 rounded-full bg-pink-900/30 flex items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-pink-400" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-lg font-semibold">Context-Aware Assistance</h3>
+                                <p class="mt-1 text-gray-300">
+                                    Our AI predicts user needs and offers proactive help based on application context.
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 mt-1">
+                                <div class="w-10 h-10 rounded-full bg-indigo-900/30 flex items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-400" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-lg font-semibold">Customizable Interfaces</h3>
+                                <p class="mt-1 text-gray-300">
+                                    Tailor button sizes, colors, and layouts to individual visual and motor preferences.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- About Section -->
+    <section id="about" class="py-20 relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-5xl font-bold mb-4">
+                    About <span class="gradient-text">I12</span>
+                </h2>
+                <p class="text-xl text-gray-300 max-w-3xl mx-auto">
+                    Pioneering accessible technology for inclusive digital experiences
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h3 class="text-2xl font-bold mb-6">Our Mission</h3>
+                    <p class="text-gray-300 mb-6">
+                        At I12, we believe technology should adapt to people, not the other way around. Our AR Mouse solution breaks down barriers for individuals with motor impairments, providing them with the tools to interact with digital content naturally and effortlessly.
+                    </p>
+                    <p class="text-gray-300 mb-6">
+                        Founded in 2022 by a team of computer vision experts and accessibility advocates, I12 combines cutting-edge research with deep empathy for user needs.
+                    </p>
+                    
+                    <div class="flex space-x-4">
+                        <div class="w-1/2 bg-gray-800/50 p-6 rounded-xl border border-gray-700">
+                            <h4 class="font-semibold mb-2">Vision</h4>
+                            <p class="text-sm text-gray-300">
+                                A world where physical limitations don't restrict digital access and expression.
+                            </p>
+                        </div>
+                        <div class="w-1/2 bg-gray-800/50 p-6 rounded-xl border border-gray-700">
+                            <h4 class="font-semibold mb-2">Approach</h4>
+                            <p class="text-sm text-gray-300">
+                                User-centered design with continuous feedback from the disability community.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="relative">
+                    <!-- Team Visualization -->
+                    <div class="relative w-full h-96 bg-gray-800/50 rounded-2xl border border-gray-700 overflow-hidden">
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="relative w-full h-full">
+                                <!-- Floating team members -->
+                                <div class="absolute top-1/4 left-1/4 w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-user text-white"></i>
+                                </div>
+                                <div class="absolute top-1/3 right-1/4 w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-user text-white"></i>
+                                </div>
+                                <div class="absolute bottom-1/4 left-1/3 w-16 h-16 bg-pink-500/20 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-user text-white"></i>
+                                </div>
+                                <div class="absolute bottom-1/3 right-1/3 w-16 h-16 bg-indigo-500/20 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-user text-white"></i>
+                                </div>
+                                
+                                <!-- Connection lines -->
+                                <svg viewBox="0 0 100 100" class="absolute inset-0 w-full h-full">
+                                    <path d="M25,40 L50,50 L75,40" stroke="#3b82f6" stroke-width="2" fill="none" stroke-dasharray="5,3"/>
+                                    <path d="M40,60 L50,50 L60,60" stroke="#8b5cf6" stroke-width="2" fill="none" stroke-dasharray="5,3"/>
+                                </svg>
+                                
+                                <!-- Center element -->
+                                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-2xl">
+                                    I12
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Contact Section -->
+    <section id="contact" class="py-20 bg-gradient-to-b from-gray-800 to-gray-900 relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-5xl font-bold mb-4">
+                    Get <span class="gradient-text">In Touch</span>
+                </h2>
+                <p class="text-xl text-gray-300 max-w-3xl mx-auto">
+                    We'd love to hear from you about partnerships, feedback, or questions
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <div>
+                    <form class="space-y-6">
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-300 mb-1">Name</label>
+                            <input type="text" id="name" class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-white placeholder-gray-400">
+                        </div>
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-300 mb-1">Email</label>
+                            <input type="email" id="email" class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-white placeholder-gray-400">
+                        </div>
+                        <div>
+                            <label for="subject" class="block text-sm font-medium text-gray-300 mb-1">Subject</label>
+                            <input type="text" id="subject" class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-white placeholder-gray-400">
+                        </div>
+                        <div>
+                            <label for="message" class="block text-sm font-medium text-gray-300 mb-1">Message</label>
+                            <textarea id="message" rows="4" class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-white placeholder-gray-400"></textarea>
+                        </div>
+                        <div>
+                            <button type="submit" class="w-full px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg text-white font-semibold hover:opacity-90 transition">
+                                Send Message
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="flex flex-col justify-between">
+                    <div class="space-y-6">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 mt-1">
+                                <div class="w-10 h-10 rounded-full bg-blue-900/30 flex items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-lg font-semibold">Location</h3>
+                                <p class="mt-1 text-gray-300">
+                                    Kolkata, West Bengal, India
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 mt-1">
+                                <div class="w-10 h-10 rounded-full bg-purple-900/30 flex items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 7V5z" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-lg font-semibold">Contact</h3>
+                                <p class="mt-1 text-gray-300">
+                                    +91 7602388774<br>
+                                    anirbansamanta183@gmail.com
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="py-12 bg-gray-900 border-t border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-6 md:mb-0">
+                    <span class="text-2xl font-bold gradient-text">I12</span>
+                    <p class="mt-2 text-gray-400 text-sm">
+                        © 2023 I12 Technologies. All rights reserved.
+                    </p>
+                </div>
+                <div class="flex flex-wrap justify-center gap-6">
+                    <a href="#" class="text-gray-400 hover:text-white transition">Privacy Policy</a>
+                    <a href="#" class="text-gray-400 hover:text-white transition">Terms of Service</a>
+                    <a href="#" class="text-gray-400 hover:text-white transition">Accessibility</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Chatbot Widget -->
+    <div class="fixed bottom-8 right-8 z-50">
+        <div class="relative">
+            <!-- Chatbot Toggle Button -->
+            <button id="chatbot-toggle" class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white flex items-center justify-center shadow-xl hover:shadow-2xl transition-all transform hover:scale-110">
+                <i class="fas fa-robot text-2xl"></i>
+            </button>
+            
+            <!-- Chatbot Container -->
+            <div id="chatbot-container" class="chatbot-container absolute bottom-20 right-0 w-80 bg-gray-800 rounded-xl shadow-2xl border border-gray-700 overflow-hidden">
+                <div class="bg-gray-900 px-4 py-3 flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <h3 class="ml-3 font-semibold">I12 Assistant</h3>
+                    </div>
+                    <button id="chatbot-close" class="text-gray-400 hover:text-white">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="h-80 overflow-y-auto p-4 space-y-4" id="chatbot-messages">
+                    <div class="message visible">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs">
+                                    I12
+                                </div>
+                            </div>
+                            <div class="ml-3">
+                                <div class="bg-gray-700 px-4 py-2 rounded-lg rounded-tl-none">
+                                    <p class="text-sm">Hello! I'm your I12 assistant. How can I help you today?</p>
+                                </div>
+                                <div class="flex space-x-2 mt-2">
+                                    <button class="text-xs bg-gray-700 hover:bg-gray-600 px-2 py-1 rounded-full transition">Features</button>
+                                    <button class="text-xs bg-gray-700 hover:bg-gray-600 px-2 py-1 rounded-full transition">Pricing</button>
+                                    <button class="text-xs bg-gray-700 hover:bg-gray-600 px-2 py-1 rounded-full transition">Support</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="border-t border-gray-700 p-3 bg-gray-900">
+                    <div class="flex">
+                        <input type="text" id="chatbot-input" placeholder="Type your message..." class="flex-1 bg-gray-800 border border-gray-700 rounded-l-lg px-4 py-2 text-white focus:outline-none focus:ring-1 focus:ring-blue-500">
+                        <button id="chatbot-send" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-r-lg transition">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Initialize Typed.js for the hero section
+        document.addEventListener('DOMContentLoaded', function() {
+            new Typed('#typed-text', {
+                strings: [
+                    "For special needs users.",
+                    "With hand gesture control.",
+                    "With eye tracking technology.",
+                    "Powered by adaptive AI."
+                ],
+                typeSpeed: 50,
+                backSpeed: 30,
+                loop: true,
+                showCursor: true,
+                cursorChar: '|',
+                smartBackspace: true
+            });
+            
+            // Three.js Background with animated shapes
+            const container = document.getElementById('threejs-container');
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            container.appendChild(renderer.domElement);
+            
+            // Create floating 3D shapes
+            const shapes = [];
+            const geometryTypes = [
+                new THREE.BoxGeometry(0.5, 0.5, 0.5),
+                new THREE.SphereGeometry(0.3, 32, 32),
+                new THREE.ConeGeometry(0.3, 0.6, 32),
+                new THREE.TorusGeometry(0.3, 0.1, 16, 32),
+                new THREE.IcosahedronGeometry(0.3, 0)
+            ];
+            
+            const colors = [
+                0x3b82f6, 0x8b5cf6, 0xec4899, 0x10b981, 0xf59e0b
+            ];
+            
+            // Create initial shapes with animation
+            for (let i = 0; i < 15; i++) {
+                const geometry = geometryTypes[Math.floor(Math.random() * geometryTypes.length)];
+                const material = new THREE.MeshPhongMaterial({
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    transparent: true,
+                    opacity: 0.8,
+                    shininess: 100
+                });
+                
+                const shape = new THREE.Mesh(geometry, material);
+                
+                // Random position
+                shape.position.x = (Math.random() - 0.5) * 10;
+                shape.position.y = (Math.random() - 0.5) * 10;
+                shape.position.z = (Math.random() - 0.5) * 10;
+                
+                // Random rotation
+                shape.rotation.x = Math.random() * Math.PI;
+                shape.rotation.y = Math.random() * Math.PI;
+                
+                // Random scale
+                const scale = 0.5 + Math.random() * 1.5;
+                shape.scale.set(scale, scale, scale);
+                
+                // Animation properties
+                shape.userData = {
+                    speed: 0.01 + Math.random() * 0.05,
+                    rotationSpeed: new THREE.Vector3(
+                        Math.random() * 0.01,
+                        Math.random() * 0.01,
+                        Math.random() * 0.01
+                    ),
+                    direction: new THREE.Vector3(
+                        Math.random() - 0.5,
+                        Math.random() - 0.5,
+                        Math.random() - 0.5
+                    ).normalize()
+                };
+                
+                // Initial scale for animation
+                shape.scale.set(0, 0, 0);
+                
+                shapes.push(shape);
+                scene.add(shape);
+            }
+            
+            // Add lights
+            const ambientLight = new THREE.AmbientLight(0x404040);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(1, 1, 1);
+            scene.add(directionalLight);
+            
+            const pointLight = new THREE.PointLight(0x3b82f6, 1, 10);
+            pointLight.position.set(2, 2, 2);
+            scene.add(pointLight);
+            
+            camera.position.z = 5;
+            
+            // Hand model placeholder (would be replaced with actual 3D model in production)
+            const handModelContainer = document.getElementById('hand-model');
+            const handCanvas = document.createElement('canvas');
+            handCanvas.width = 300;
+            handCanvas.height = 300;
+            handModelContainer.appendChild(handCanvas);
+            
+            const handCtx = handCanvas.getContext('2d');
+            
+            function drawHand() {
+                handCtx.clearRect(0, 0, handCanvas.width, handCanvas.height);
+                
+                // Draw a simple hand illustration
+                handCtx.fillStyle = '#3b82f6';
+                handCtx.beginPath();
+                
+                // Palm
+                handCtx.ellipse(150, 150, 60, 80, 0, 0, Math.PI * 2);
+                handCtx.fill();
+                
+                // Fingers
+                for (let i = 0; i < 5; i++) {
+                    const angle = -Math.PI/4 + (i * Math.PI/8);
+                    const length = i === 0 ? 80 : 100; // Thumb is shorter
+                    const width = i === 0 ? 30 : 25;
+                    
+                    handCtx.beginPath();
+                    handCtx.ellipse(
+                        150 + Math.cos(angle) * 70,
+                        150 + Math.sin(angle) * 70,
+                        width,
+                        length,
+                        angle,
+                        0,
+                        Math.PI
+                    );
+                    handCtx.fill();
+                }
+                
+                requestAnimationFrame(drawHand);
+            }
+            
+            drawHand();
+            
+            // Animation loop
+            let frame = 0;
+            function animate() {
+                requestAnimationFrame(animate);
+                
+                frame++;
+                
+                // Animate shapes
+                shapes.forEach((shape, index) => {
+                    // Scale animation on first frames
+                    if (frame < 60) {
+                        const progress = frame / 60;
+                        const scale = progress * (0.5 + Math.random() * 1.5);
+                        shape.scale.set(scale, scale, scale);
+                    }
+                    
+                    // Continuous animation
+                    shape.position.x += shape.userData.direction.x * shape.userData.speed;
+                    shape.position.y += shape.userData.direction.y * shape.userData.speed;
+                    shape.position.z += shape.userData.direction.z * shape.userData.speed;
+                    
+                    // Bounce off edges
+                    if (Math.abs(shape.position.x) > 5) shape.userData.direction.x *= -1;
+                    if (Math.abs(shape.position.y) > 5) shape.userData.direction.y *= -1;
+                    if (Math.abs(shape.position.z) > 5) shape.userData.direction.z *= -1;
+                    
+                    // Rotation
+                    shape.rotation.x += shape.userData.rotationSpeed.x;
+                    shape.rotation.y += shape.userData.rotationSpeed.y;
+                    shape.rotation.z += shape.userData.rotationSpeed.z;
+                });
+                
+                renderer.render(scene, camera);
+            }
+            
+            animate();
+            
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+            
+            // Cursor trail effect
+            const cursorTrail = document.getElementById('cursor-trail');
+            let mouseX = 0, mouseY = 0;
+            let trailX = 0, trailY = 0;
+            let isFirstMove = true;
+            
+            document.addEventListener('mousemove', function(e) {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+                
+                if (isFirstMove) {
+                    trailX = mouseX;
+                    trailY = mouseY;
+                    isFirstMove = false;
+                }
+            });
+            
+            function animateCursor() {
+                const dx = mouseX - trailX;
+                const dy = mouseY - trailY;
+                
+                trailX += dx * 0.2;
+                trailY += dy * 0.2;
+                
+                cursorTrail.style.left = trailX + 'px';
+                cursorTrail.style.top = trailY + 'px';
+                
+                requestAnimationFrame(animateCursor);
+            }
+            
+            animateCursor();
+            
+            // Chatbot functionality
+            const chatbotToggle = document.getElementById('chatbot-toggle');
+            const chatbotContainer = document.getElementById('chatbot-container');
+            const chatbotClose = document.getElementById('chatbot-close');
+            const chatbotSend = document.getElementById('chatbot-send');
+            const chatbotInput = document.getElementById('chatbot-input');
+            const chatbotMessages = document.getElementById('chatbot-messages');
+            
+            chatbotToggle.addEventListener('click', function() {
+                chatbotContainer.classList.toggle('active');
+            });
+            
+            chatbotClose.addEventListener('click', function() {
+                chatbotContainer.classList.remove('active');
+            });
+            
+            function addMessage(text, isUser = false) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message';
+                
+                if (isUser) {
+                    messageDiv.innerHTML = `
+                        <div class="flex items-start justify-end">
+                            <div class="ml-3">
+                                <div class="bg-blue-600 px-4 py-2 rounded-lg rounded-tr-none">
+                                    <p class="text-sm">${text}</p>
+                                </div>
+                            </div>
+                            <div class="flex-shrink-0">
+                                <div class="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-white text-xs">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    messageDiv.innerHTML = `
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs">
+                                    I12
+                                </div>
+                            </div>
+                            <div class="ml-3">
+                                <div class="bg-gray-700 px-4 py-2 rounded-lg rounded-tl-none">
+                                    <p class="text-sm">${text}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                chatbotMessages.appendChild(messageDiv);
+                
+                // Scroll to bottom
+                setTimeout(() => {
+                    messageDiv.classList.add('visible');
+                    chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+                }, 10);
+            }
+            
+            chatbotSend.addEventListener('click', function() {
+                const message = chatbotInput.value.trim();
+                if (message) {
+                    addMessage(message, true);
+                    chatbotInput.value = '';
+                    
+                    // Simulate bot response
+                    setTimeout(() => {
+                        const responses = [
+                            "I understand you're asking about " + message + ". Let me check that for you.",
+                            "That's an interesting question about " + message + ". Here's what I found...",
+                            "Our AR mouse technology can help with " + message + " through its adaptive controls.",
+                            "For " + message + ", I recommend checking our features section for more details."
+                        ];
+                        
+                        addMessage(responses[Math.floor(Math.random() * responses.length)]);
+                    }, 1000);
+                }
+            });
+            
+            chatbotInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    chatbotSend.click();
+                }
+            });
+            
+            // Smooth scrolling for navigation links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const targetId = this.getAttribute('href');
+                    if (targetId === '#') return;
+                    
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 80,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+            
+            // Animate elements when they come into view
+            const animateOnScroll = function() {
+                const elements = document.querySelectorAll('.tech-card, .message');
+                
+                elements.forEach(element => {
+                    const elementPosition = element.getBoundingClientRect().top;
+                    const windowHeight = window.innerHeight;
+                    
+                    if (elementPosition < windowHeight - 100) {
+                        element.classList.add('animate__animated', 'animate__fadeInUp');
+                    }
+                });
+            };
+            
+            window.addEventListener('scroll', animateOnScroll);
+            animateOnScroll(); // Run once on page load
+        });
+    </script>
+</body>
+</html>
