@@ -149,6 +149,52 @@
                 opacity: 1;
             }
         }
+        
+        /* Loading spinner styles */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            -webkit-animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .btn-loading {
+            position: relative;
+            pointer-events: none;
+        }
+        
+        .btn-loading::after {
+            content: "";
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            margin: auto;
+            border: 3px solid transparent;
+            border-top-color: #ffffff;
+            border-radius: 50%;
+            animation: button-loading-spinner 1s ease infinite;
+        }
+        
+        @keyframes button-loading-spinner {
+            from {
+                transform: rotate(0turn);
+            }
+            to {
+                transform: rotate(1turn);
+            }
+        }
     </style>
 </head>
 <body class="min-h-screen">
@@ -198,8 +244,11 @@
                     <span id="typed-text"></span>
                 </p>
                 <div class="flex space-x-4">
-                    <button class="px-8 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full text-white font-semibold hover:opacity-90 transition transform hover:scale-105">
-                        Get Started
+                    <button id="get-started-btn" class="px-8 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full text-white font-semibold hover:opacity-90 transition transform hover:scale-105 flex items-center justify-center">
+                        <span id="btn-text">Get Started</span>
+                        <span id="btn-loader" class="hidden ml-2">
+                            <div class="loading-spinner"></div>
+                        </span>
                     </button>
                     <button class="px-8 py-3 border border-gray-600 rounded-full text-white font-semibold hover:bg-gray-800 transition transform hover:scale-105">
                         Learn More
@@ -389,61 +438,61 @@
                             </div>
                             <div class="ml-4">
                                 <h3 class="text-lg font-semibold">Multi-Modal Control</h3>
-                                <p class="mt-1 text-gray-300">
-                                    Combine hand gestures, eye tracking, and voice commands for complete control flexibility.
-                                </p>
-                            </div>
-                        </div>
-                        
-                        <div class="flex items-start">
-                            <div class="flex-shrink-0 mt-1">
-                                <div class="w-10 h-10 rounded-full bg-purple-900/30 flex items-center justify-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-400" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                                    </svg>
-                                </div>
-                            </div>
-                            <div class="ml-4">
-                                <h3 class="text-lg font-semibold">Adaptive Sensitivity</h3>
-                                <p class="mt-1 text-gray-300">
-                                    Automatically adjusts to individual motor capabilities and response times.
-                                </p>
-                            </div>
-                        </div>
-                        
-                        <div class="flex items-start">
-                            <div class="flex-shrink-0 mt-1">
-                                <div class="w-10 h-10 rounded-full bg-pink-900/30 flex items-center justify-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-pink-400" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                                    </svg>
-                                </div>
-                            </div>
-                            <div class="ml-4">
-                                <h3 class="text-lg font-semibold">Context-Aware Assistance</h3>
-                                <p class="mt-1 text-gray-300">
-                                    Our AI predicts user needs and offers proactive help based on application context.
-                                </p>
-                            </div>
-                        </div>
-                        
-                        <div class="flex items-start">
-                            <div class="flex-shrink-0 mt-1">
-                                <div class="w-10 h-10 rounded-full bg-indigo-900/30 flex items-center justify-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-400" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                                    </svg>
-                                </div>
-                            </div>
-                            <div class="ml-4">
-                                <h3 class="text-lg font-semibold">Customizable Interfaces</h3>
-                                <p class="mt-1 text-gray-300">
-                                    Tailor button sizes, colors, and layouts to individual visual and motor preferences.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
+                <p class="mt-1 text-gray-300">
+                    Combine hand gestures, eye tracking, and voice commands for complete control flexibility.
+                </p>
+            </div>
+        </div>
+        
+        <div class="flex items-start">
+            <div class="flex-shrink-0 mt-1">
+                <div class="w-10 h-10 rounded-full bg-purple-900/30 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                    </svg>
                 </div>
+            </div>
+            <div class="ml-4">
+                <h3 class="text-lg font-semibold">Adaptive Sensitivity</h3>
+                <p class="mt-1 text-gray-300">
+                    Automatically adjusts to individual motor capabilities and response times.
+                </p>
+            </div>
+        </div>
+        
+        <div class="flex items-start">
+            <div class="flex-shrink-0 mt-1">
+                <div class="w-10 h-10 rounded-full bg-pink-900/30 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-pink-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+            </div>
+            <div class="ml-4">
+                <h3 class="text-lg font-semibold">Context-Aware Assistance</h3>
+                <p class="mt-1 text-gray-300">
+                    Our AI predicts user needs and offers proactive help based on application context.
+                </p>
+            </div>
+        </div>
+        
+        <div class="flex items-start">
+            <div class="flex-shrink-0 mt-1">
+                <div class="w-10 h-10 rounded-full bg-indigo-900/30 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+            </div>
+            <div class="ml-4">
+                <h3 class="text-lg font-semibold">Customizable Interfaces</h3>
+                <p class="mt-1 text-gray-300">
+                    Tailor button sizes, colors, and layouts to individual visual and motor preferences.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
             </div>
         </div>
     </section>
@@ -467,7 +516,7 @@
                         At I12, we believe technology should adapt to people, not the other way around. Our AR Mouse solution breaks down barriers for individuals with motor impairments, providing them with the tools to interact with digital content naturally and effortlessly.
                     </p>
                     <p class="text-gray-300 mb-6">
-                        Founded in 2025 by a team of TIGPS,KOLAGHAT, I12 combines cutting-edge research with deep empathy for user needs.
+                        Founded in 2022 by a team of computer vision experts and accessibility advocates, I12 combines cutting-edge research with deep empathy for user needs.
                     </p>
                     
                     <div class="flex space-x-4">
@@ -610,7 +659,7 @@
                 <div class="mb-6 md:mb-0">
                     <span class="text-2xl font-bold gradient-text">I12</span>
                     <p class="mt-2 text-gray-400 text-sm">
-                        © 2025 I12 TIGPS. All rights reserved.
+                        © 2023 I12 Technologies. All rights reserved.
                     </p>
                 </div>
                 <div class="flex flex-wrap justify-center gap-6">
@@ -1002,6 +1051,24 @@
                         });
                     }
                 });
+            });
+            
+            // Get Started button with loading animation
+            const getStartedBtn = document.getElementById('get-started-btn');
+            const btnText = document.getElementById('btn-text');
+            const btnLoader = document.getElementById('btn-loader');
+            
+            getStartedBtn.addEventListener('click', function() {
+                // Show loading spinner
+                btnText.textContent = 'Redirecting';
+                btnLoader.classList.remove('hidden');
+                getStartedBtn.classList.add('btn-loading');
+                
+                // Simulate loading delay (2 seconds)
+                setTimeout(function() {
+                    // Redirect to GitHub
+                    window.location.href = 'https://github.com/IAK143/PROJECT_i';
+                }, 2000);
             });
             
             // Animate elements when they come into view
